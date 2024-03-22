@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     "api",
     "rest_framework",
     "drf_yasg",
+    "gpt",
 ]
 
 MIDDLEWARE = [
