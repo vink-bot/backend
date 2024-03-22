@@ -1,7 +1,7 @@
 #  Работа с репозиторием
 - клонируйте репозиторий
 ```
-git clone git@github.com:amalshakov/vink_backend.git
+git clone git@github.com:vink-bot/backend.git
 ```
 - Перейдите в папку с проектом (vink_backend), создайте виртуальное окружение. Активируйте его.
 ```
