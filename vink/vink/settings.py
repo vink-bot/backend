@@ -57,24 +57,24 @@ TEMPLATES = [
 WSGI_APPLICATION = "vink.wsgi.application"
 
 # sqlite
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
-
-# postgres
 # DATABASES = {
 #     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": os.getenv("DB_NAME", "postgres"),
-#         "USER": os.getenv("POSTGRES_USER", "postgres"),
-#         "PASSWORD": os.getenv("POSTGRES_PASSWORD", "postgres"),
-#         "HOST": os.getenv("DB_HOST", "db"),
-#         "PORT": os.getenv("DB_PORT", "5432"),
-#     },
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
 # }
+
+# postgres
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("DB_NAME", "postgres"),
+        "USER": os.getenv("POSTGRES_USER", "postgres"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD", "postgres"),
+        "HOST": os.getenv("DB_HOST", "db"),
+        "PORT": os.getenv("DB_PORT", "5432"),
+    },
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -110,3 +110,5 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ],
 }
+
+CELERY_BROKER_URL = "redis://redis:6379/0"
