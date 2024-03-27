@@ -1,0 +1,63 @@
+version: '3.3'
+
+volumes:
+  pg_data:
+  static_value:
+
+services:
+
+  backend-app:
+    build:
+      context: vink
+    ports:
+      - "8000:8000"
+    volumes:
+      - static_value:/app/static/
+    env_file:
+      - .env
+    command: python manage.py runserver 0.0.0.0:8000
+    depends_on:
+      - db
+
+  db:
+    image: postgres:14.6-alpine
+    env_file:
+      - .env
+    volumes:
+      - pg_data:/var/lib/postgresql/data/
+
+  redis:
+    image: redis:7.0.5-alpine
+    hostname: redis
+
+  worker:
+    build: 
+      context: vink
+    hostname: worker
+    entrypoint: celery
+    command: -A vink worker --loglevel=info
+    volumes:
+      - static_value:/app/static/
+    env_file:
+      - .env
+    links:
+      - redis
+    depends_on:
+      - redis
+      - db
+      - backend-app
+
+  flower:
+    build: 
+      context: vink
+    hostname: flower
+    entrypoint: celery
+    command: -A vink flower
+    volumes:
+      - static_value:/app/static/
+    links:
+      - redis
+    depends_on:
+      - redis
+    ports:
+      - "5555:5555"
