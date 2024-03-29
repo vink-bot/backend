@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from gpt.models import Message, Token
+from gpt.tasks import communicate_gpt
 from gpt.utils import send_message_gpt
 
 
@@ -22,19 +23,18 @@ class SendMessageGPT(APIView):
                 {"message": "Токен не был передан в заголовках"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        if not Token.objects.filter(chat_token=chat_token).first():
-            Token.objects.create(chat_token=chat_token)
+        token = Token.objects.filter(chat_token=chat_token).first()
+        if not token:
+            token = Token.objects.create(chat_token=chat_token)
         data = request.data
         text_responce = data.get("message")
         date_responce = data.get("date")
         message = Message.objects.create(
             text_responce=text_responce,
             date_responce=date_responce,
-            author=Token.objects.filter(chat_token=chat_token),
+            author=token,
         )
-        text_request = send_message_gpt(text_responce)
-        date_request = datetime.datetime.now()
-        message.text_request = text_request
-        message.date_request = date_request
-        message.save()
-        return Response({}, status=status.HTTP_201_CREATED)
+
+        communicate_gpt.delay(message.id)
+
+        return Response({"message": "Успех"}, status=status.HTTP_201_CREATED)
