@@ -12,14 +12,15 @@ from .utils import send_message_gpt
 
 
 @shared_task()
-def communicate_gpt(message_id):
+def communicate_gpt(chat_token, message):
     """."""
-    from .models import Message
+    from .models import Message, Token
 
     with transaction.atomic():
-        message = Message.objects.get(id=message_id)
-        text_request = send_message_gpt(message.text_responce)
-        date_request = datetime.datetime.now()
-        message.text_request = text_request
-        message.date_request = date_request
-        message.save()
+        message = send_message_gpt(message)
+        Message.objects.create(
+            message=message,
+            token=Token.objects.filter(chat_token=chat_token).first(),
+            status=0,
+            user="GPT",
+        )
