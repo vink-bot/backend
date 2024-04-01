@@ -17,17 +17,25 @@ class Message(models.Model):
     """Модель, которая необходима для сохранения в БД всей переписки из чата.
 
     Attributes:
-        text_responce (str): Сообщение пользователя из чата.
-        text_request (str): Сообщение пользователю из чата.
-        date_responce (str): Время и дата сообщения (запроса) пользователя.
-        date_responce (str): Время и дата сообщения (ответа) пользователю.
-        author (class Token): FK анонимного пользователя.
+        example (str): Бла бла бла.
     """
 
-    text_responce = models.TextField()
-    text_request = models.TextField(blank=True, null=True)
-    date_responce = models.DateTimeField()
-    date_request = models.DateTimeField(blank=True, null=True)
-    author = models.ForeignKey(
+    STATUS_TYPES = (
+        ("0", "0"),
+        ("1", "1"),
+        ("3", "3"),
+    )
+    USER_TYPES = (
+        ("USER", "USER"),
+        ("GPT", "GPT"),
+        ("OPERATOR", "OPERATOR"),
+    )
+
+    message = models.TextField(blank=True, null=True)
+    date_create = models.DateTimeField(auto_now_add=True)
+    token = models.ForeignKey(
         Token, on_delete=models.CASCADE, related_name="messages"
     )
+    status = models.CharField(choices=STATUS_TYPES, max_length=15)
+    user = models.CharField(choices=USER_TYPES, max_length=15)
+    telegram_number_chat = models.PositiveIntegerField(blank=True, null=True)

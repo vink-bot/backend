@@ -10,11 +10,12 @@ class TokenAdmin(admin.ModelAdmin):
 class MessageAdmin(admin.ModelAdmin):
     list_display = (
         "id",
-        "text_responce",
-        "text_request",
-        "date_responce",
-        "date_request",
-        "author",
+        "message",
+        "date_create",
+        "token",
+        "status",
+        "user",
+        "telegram_number_chat",
     )
 
 
