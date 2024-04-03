@@ -18,7 +18,7 @@ services:
   
   frontend-app:
     build:
-      context: ./frontend
+      context: ../frontend
     volumes:
       - ../frontend/:/app/result_build/
 
