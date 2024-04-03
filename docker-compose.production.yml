@@ -1,0 +1,76 @@
+version: '3.3'
+
+volumes:
+  pg_data:
+  static_value:
+
+services:
+
+  backend-app:
+    build:
+      context: vink
+    volumes:
+      - static_value:/app/static/
+    env_file:
+      - .env
+    depends_on:
+      - db
+  
+  frontend-app:
+    build:
+      context: ./frontend
+    volumes:
+      - ../frontend/:/app/result_build/
+
+  nginx:
+    image: nginx:1.19.3
+    ports:
+      - "8000:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ../frontend/build:/usr/share/nginx/html/
+      - ../docs/:/usr/share/nginx/html/api/docs/
+      - static_value:/var/html/static/
+
+  db:
+    image: postgres:14.6-alpine
+    env_file:
+      - .env
+    volumes:
+      - pg_data:/var/lib/postgresql/data/
+
+  redis:
+    image: redis:7.0.5-alpine
+    hostname: redis
+
+  worker:
+    build: 
+      context: vink
+    hostname: worker
+    entrypoint: celery
+    command: -A vink worker --loglevel=info
+    volumes:
+      - static_value:/app/static/
+    env_file:
+      - .env
+    links:
+      - redis
+    depends_on:
+      - redis
+      - db
+      - backend-app
+
+  flower:
+    build: 
+      context: vink
+    hostname: flower
+    entrypoint: celery
+    command: -A vink flower
+    volumes:
+      - static_value:/app/static/
+    links:
+      - redis
+    depends_on:
+      - redis
+    ports:
+      - "5555:5555"
