@@ -16,4 +16,4 @@ COPY . .
 
 # USER user
 
-# CMD ["python", "vink/manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "vink.wsgi"]
