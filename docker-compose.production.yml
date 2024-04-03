@@ -6,7 +6,7 @@ volumes:
 
 services:
 
-  backend-app:
+  backend:
     build:
       context: vink
     volumes:
@@ -16,7 +16,7 @@ services:
     depends_on:
       - db
   
-  frontend-app:
+  frontend:
     build:
       context: ../frontend
     volumes:
@@ -58,7 +58,7 @@ services:
     depends_on:
       - redis
       - db
-      - backend-app
+      - backend
 
   flower:
     build: 
