@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
-from telegram import Bot
 
 load_dotenv()
 
@@ -26,6 +25,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_yasg",
     "gpt",
+    "tg",
 ]
 
 MIDDLEWARE = [

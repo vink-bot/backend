@@ -12,15 +12,16 @@ class IncomingMessage:
     
     Аттрибуты:
         update_id: int
-        chat_id: int
         user_id: int
+        user_first_name: str
+        user_last_name: str
+        user_username: str
         message_text: str = None
         callback_data: str = None
         callback_query_id: str = None
         client_token: str = None
     """
     update_id: int
-    chat_id: int
     user_id: int
     user_first_name: str
     user_last_name: str

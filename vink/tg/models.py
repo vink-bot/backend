@@ -1,6 +1,7 @@
 from django.db import models
 
-from vink.gpt.models import Message, Token
+from gpt.models import Token
+
 
 class LastUpdate(models.Model):
     """Модель для хранения последнего обработанного идентификатора
@@ -11,37 +12,6 @@ class LastUpdate(models.Model):
     
     """
     update_id = models.PositiveBigIntegerField(blank=False, null=False)
-
-
-class OperatorChat(models.Model):
-    """Модель для хранения чатов пользователь-оператор в телеграм.
-    
-    Attributes:
-        token (str): chat-token пользователя в веб чате
-        operator_user_id (int): user_id оператора в телеграмм
-        operator_chat_id (int): chat_id оператора в телеграм-боте
-        date_create: дата назначения оператора клиенту
-        is_active (bool): активный чат - True, закрыт - False
-    """
-    token = models.ForeignKey(
-        Token, on_delete=models.CASCADE, related_name="operators"
-    )
-    operator_user_id = models.PositiveBigIntegerField(blank=False, null=False)
-    operator_chat_id = models.PositiveBigIntegerField(blank=False, null=False)
-    date_create = models.DateTimeField(auto_now_add=True)
-    is_active = models.BooleanField(default=False)
-
-
-class ActiveOperator(models.Model):
-    """Модель для активных операторов (ожидающих приглашения).
-    После окончания работы оператора, запись удаляется.
-    
-    Attributes:
-        operator_user_id (int): user_id оператора в телеграмм
-        operator_chat_id (int): chat_id оператора в телеграм-боте
-    """
-    operator_user_id = models.PositiveBigIntegerField(blank=False, null=False)
-    operator_chat_id = models.PositiveBigIntegerField(blank=False, null=False)
 
 
 class Operator(models.Model):
@@ -60,3 +30,53 @@ class Operator(models.Model):
     username = models.CharField(max_length=100, blank=True, null=True)
     is_enabled = models.BooleanField(default=False)
 
+
+class Invite(models.Model):
+    """Модель приглашений операторам о новых вопросах клиентов.
+    
+    Attributes:
+        token = models.ForeignKey(
+            Token, on_delete=models.CASCADE, related_name="invites"
+        )
+        operator = models.ForeignKey(
+            Operator, on_delete=models.CASCADE, related_name="invites"
+        )
+        date_create = models.DateTimeField(auto_now_add=True)
+        is_active = models.BooleanField(default=False)
+    """
+    token = models.ForeignKey(
+        Token, 
+        on_delete=models.CASCADE, 
+        related_name="invites", 
+        null=True, 
+        blank=True,
+    )
+    operator = models.ForeignKey(
+        Operator, on_delete=models.CASCADE, related_name="invites"
+    )
+    date_create = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=False)
+
+
+class OperatorChat(models.Model):
+    """Модель для хранения чатов пользователь-оператор в телеграм.
+    
+    Attributes:
+        token models.ForeignKey(
+            Token, on_delete=models.CASCADE, related_name="operators)
+        operator_user_id (int): user_id оператора в телеграмм
+        date_create: дата назначения оператора клиенту
+        is_active (bool): активный чат - True, закрыт - False
+    """
+    token = models.ForeignKey(
+        Token, 
+        on_delete=models.CASCADE,
+        related_name="chats",
+        null=True,
+        blank=True,
+    )
+    operator = models.ForeignKey(
+        Operator, on_delete=models.CASCADE, related_name="chats"
+    )
+    date_create = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=False)
