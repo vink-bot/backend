@@ -8,3 +8,5 @@ requests==2.31.0
 celery[redis]==5.2.7
 flower==1.2.0
 celery_singleton==0.3.1
+python-telegram-bot==13.7
+django-celery-beat==2.6.0

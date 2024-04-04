@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
+from telegram import Bot
 
 load_dotenv()
 
@@ -20,6 +21,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_celery_beat",
     "api",
     "rest_framework",
     "drf_yasg",
@@ -112,3 +114,7 @@ REST_FRAMEWORK = {
 }
 
 CELERY_BROKER_URL = "redis://redis:6379/0"
+
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
