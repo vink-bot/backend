@@ -10,7 +10,7 @@ services:
     build:
       context: vink
     volumes:
-      - static_value:/app/static/
+      - static_value:/app/collected_static/
     env_file:
       - .env
     depends_on:
@@ -68,7 +68,7 @@ services:
     entrypoint: celery
     command: -A vink worker --loglevel=info
     volumes:
-      - static_value:/app/static/
+      - static_value:/app/collected_static/
     env_file:
       - .env
     links:
@@ -85,7 +85,7 @@ services:
     entrypoint: celery
     command: -A vink flower
     volumes:
-      - static_value:/app/static/
+      - static_value:/app/collected_static/
     links:
       - redis
     depends_on:
