@@ -44,7 +44,7 @@ class SendMessageGPT(APIView):
         else:
             message_object.recipient = 'OPERATOR'
             message_object.is_handled = False
-        message_object.save()
+            message_object.save()
 
         return Response({"message": "Успех"}, status=status.HTTP_201_CREATED)
 
