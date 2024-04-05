@@ -9,5 +9,9 @@ urlpatterns = [
     path("", include(router.urls)),
     path("gpt", SendMessageGPT.as_view(), name="send-message-gpt"),
     path("message", ReceiveMessage.as_view(), name="receive-message"),
-    path("operator", SendMessageToOperator.as_view(), name="send-message-operator")
+    path(
+        "operator",
+        SendMessageToOperator.as_view(),
+        name="send-message-operator",
+    ),
 ]

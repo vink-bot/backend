@@ -28,16 +28,21 @@ def communicate_gpt(chat_token, message, message_id):
         else:
             client_last_message = Message.objects.get(pk=message_id)
             client_last_message.is_handled = False
-            client_last_message.recipient = 'OPERATOR'
+            client_last_message.recipient = "OPERATOR"
             client_last_message.save()
 
 
 def is_gpt_message_correct(message: str) -> bool:
-    """Проверка сообщения от GPT на необходимость
-    переключения на оператора.
-    Если если сообщение корректно возвращает True,
-    если нет и нужно переключить на оператора - False."""
+    """Проверка сообщения от GPT на необходимость переключения на оператора.
+    Если сообщение от GPT корректно - возвращает True.
+    Если сообщение от GPT не корректно - возвращает False.
+    True - продолжает общение с GPT.
+    False - переключает общение на оператора.
+    """
 
-    # Здесь можно написать логику проверки на корректность.
+    fail_1 = "искусственного интеллекта"
+    fail_2 = "искусственный интеллект"
 
+    if fail_1 in message or fail_2 in message:
+        return False
     return True

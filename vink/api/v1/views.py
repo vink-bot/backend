@@ -1,6 +1,7 @@
 import datetime
 import logging
 
+from django.conf import settings
 from rest_framework import authentication, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -9,11 +10,9 @@ from .serializers import MessageSerializer
 from gpt.models import Message, Token
 from gpt.tasks import communicate_gpt
 from gpt.utils import send_message_gpt
-from tg.tg_bot import check_is_in_operator_mode
-from tg.tg_bot import VinkTgBotGetter
-from vink.settings import TELEGRAM_BOT_TOKEN
-# from gpt.tg_utils import send_message_to_operator_via_tg_bot, send_notification_to_operators
+from tg.tg_bot import VinkTgBotGetter, check_is_in_operator_mode
 
+# from gpt.tg_utils import send_message_to_operator_via_tg_bot, send_notification_to_operators
 
 
 class SendMessageGPT(APIView):
@@ -42,7 +41,7 @@ class SendMessageGPT(APIView):
         if not check_is_in_operator_mode(chat_token=chat_token):
             communicate_gpt.delay(chat_token, message, message_object.pk)
         else:
-            message_object.recipient = 'OPERATOR'
+            message_object.recipient = "OPERATOR"
             message_object.is_handled = False
             message_object.save()
 
@@ -65,10 +64,13 @@ class ReceiveMessage(APIView):
             {"messages": serializer.data}, status=status.HTTP_200_OK
         )
 
+
 logger = logging.getLogger(__name__)
+
 
 class SendMessageToOperator(APIView):
     """Отправить сообщение оператору."""
+
     def post(self, request):
         headers = request.headers
         chat_token = headers.get("chat-token")
@@ -82,14 +84,15 @@ class SendMessageToOperator(APIView):
             token = Token.objects.create(chat_token=chat_token)
         data = request.data
         message = data.get("message")
-        message_object = Message.objects.create(
-            message=message, 
-            token=token, status='1', 
-            user="USER", 
-            is_handled=False, 
-            recipient='OPERATOR',
+        Message.objects.create(
+            message=message,
+            token=token,
+            status="1",
+            user="USER",
+            is_handled=False,
+            recipient="OPERATOR",
         )
-        bot = VinkTgBotGetter(TELEGRAM_BOT_TOKEN, logger)
+        bot = VinkTgBotGetter(settings.TELEGRAM_BOT_TOKEN, logger)
         bot.run()
 
         return Response({"message": "Успех"}, status=status.HTTP_201_CREATED)
