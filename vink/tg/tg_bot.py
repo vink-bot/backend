@@ -38,7 +38,7 @@ class VinkTgBotGetter():
         self.__get_and_parse_updates()
 
         # Рассылка уведомлений о новых сообщениях пользователей
-        self.__send_notification_for_available_operators()
+        self.__send_invites_for_available_operators()
 
         # Рассылка сообщений операторам
         self.__send_client_messages()
@@ -142,6 +142,8 @@ class VinkTgBotGetter():
                 message_text=update.effective_message.text,
                 callback_data=callback_data,
                 callback_query_id=callback_query_id,
+                client_token=self.__get_client_token_by_operator(
+                    update.effective_user.id)
             )
             last_update_id = update.update_id
             
@@ -277,7 +279,7 @@ class VinkTgBotGetter():
                         self.__send_message(
                             message=(
                                 f'Предыдущая переписка с {token.chat_token}, '
-                                f'всего {len(previous_chat)}:'
+                                f'всего {len(previous_chat)} сообщений:'
                             ),
                             chat_id=message.user_id
                         )
@@ -302,8 +304,9 @@ class VinkTgBotGetter():
                     if len(client_messages) > 0:
                         self.__send_message(
                             message=(
-                                f'Необработанные сообщения от {token},'
-                                f'всего {len(client_messages)}:'
+                                f'Необработанные сообщения от '
+                                f'{token.chat_token}, '
+                                f'всего {len(client_messages)} сообщений:'
                             ),
                             chat_id=message.user_id
                         )
@@ -313,7 +316,7 @@ class VinkTgBotGetter():
                                 message=text,
                                 chat_id=message.user_id
                             )
-                            item.is_handled=True
+                            item.is_handled = True
                             item.save()
                     else:
                         # Колбак и нет сообщений от клиента
@@ -366,12 +369,12 @@ class VinkTgBotGetter():
         """Возвращает True если токен зарегистрирован."""
         return Token.objects.filter(chat_token=token).exists()
 
-    def __send_notification_for_available_operators(self):
+    def __send_invites_for_available_operators(self):
         """Рассылает уведомления свободным операторам.
         Об ожидающих клиентах."""
         
         # Получить список свободных операторов
-        user_waiting_set = set(
+        operator_waiting_set = set(
             OperatorChat.objects.filter(
                 is_active=True, token__isnull=True
             ).values_list(
@@ -387,19 +390,20 @@ class VinkTgBotGetter():
             ).values_list('token__chat_token', flat=True)
         )
         
-        for chat_id in user_waiting_set:
+        for chat_id in operator_waiting_set:
             for chat_token in tokens:
-                self.__send_message(
-                    chat_id=chat_id,
-                    reply_markup=self.__get_start_conversation_keyboard(
-                        chat_token),
-                    message=f'Новое сообщение от клиента {chat_token}.'
-                )
-                
-                Invite.objects.get_or_create(
+                invite, created = Invite.objects.get_or_create(
                     token=self.__get_token(chat_token),
                     operator=self.__get_operator(chat_id),
                 )
+                if created:
+                    self.__send_message(
+                        chat_id=chat_id,
+                        reply_markup=self.__get_start_conversation_keyboard(
+                            chat_token),
+                        message=f'Новое сообщение от клиента {chat_token}.'
+                    )
+                
 
     def __get_token(self, token: str) -> Optional[Token]:
         """Возвращает объект Token по строковому токену.

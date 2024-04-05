@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import LastUpdate, OperatorChat, Operator
+from .models import LastUpdate, OperatorChat, Operator, Invite
 
 # Register your models here.
 class LastUpdateAdmin(admin.ModelAdmin):
@@ -34,3 +34,15 @@ class OperatorAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Operator, OperatorAdmin)
+
+
+class InviteAdmin(admin.ModelAdmin):
+    list_display = (
+        "token",
+        "operator",
+        "date_create",
+        "is_active",
+    )
+
+
+admin.site.register(Invite, InviteAdmin)
