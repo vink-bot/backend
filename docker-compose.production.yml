@@ -67,7 +67,7 @@ services:
       context: vink
     hostname: worker
     entrypoint: celery
-    command: -A vink worker --loglevel=info
+    command: -A vink worker --beat --scheduler django --loglevel=info
     volumes:
       - static_value:/app/collected_static/
     env_file:
