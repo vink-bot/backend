@@ -125,7 +125,9 @@ class VinkTgBotGetter():
         callback_data = None
         callback_query_id = None
         for update in updates:
-            print(update)
+            print(update)  # Дебаг принт
+            # Если есть callback данные, извлекаем их. 
+            # (это для кнопки начать переписку) 
             if hasattr(update, 'callback_query'):
                 callback_query_id = getattr(update.callback_query, 'id', None)
                 callback_data = getattr(update.callback_query, 'data', None)
@@ -261,7 +263,7 @@ class VinkTgBotGetter():
 
                 if token and operator and operator_chat.token is None:
                     # Изменяем запись в OperatorChat
-                    # self.logger.error('Вошли в оператор чат здесь меняется токен')
+                    # self.logger.error('Вошли в оператор чат здесь ставится токен')
                     operator_chat.token = token
                     operator_chat.save()
                     self.__disable_invites(token)
