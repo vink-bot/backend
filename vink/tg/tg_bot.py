@@ -333,7 +333,7 @@ class VinkTgBotGetter():
                         f'токена {message.client_token} или оператор занят'
                     )
             else:
-                # Оператор уже занят
+                # Оператор который не ждет сообщений
                 self.logger.debug(
                     'Callback от оператора, который не в режиме ожидания.'
                     f'{message.user_id} {message.user_username}'
@@ -451,8 +451,7 @@ class VinkTgBotGetter():
     
     def __detach_operator_and_client(self, operator_user_id):
         """Удаляет связи между оператором и клиентом в конце разговора.
-        Закрывает чат оператора с клиентом.
-        Удаляет запись из ActiveOperator."""
+        Закрывает чат оператора с клиентом."""
         client_token = self.__get_client_token_by_operator(operator_user_id)
         if client_token:
             operator_chat: OperatorChat = OperatorChat.objects.filter(
