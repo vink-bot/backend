@@ -16,8 +16,11 @@ class MessageAdmin(admin.ModelAdmin):
         "status",
         "user",
         "telegram_number_chat",
+        "recipient"
     )
 
 
 admin.site.register(Token, TokenAdmin)
 admin.site.register(Message, MessageAdmin)
+
+
