@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import LastUpdate, OperatorChat, Operator, Invite
 
-# Register your models here.
+
 class LastUpdateAdmin(admin.ModelAdmin):
     list_display = (
         "update_id",

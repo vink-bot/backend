@@ -1,7 +1,7 @@
 from django.core.management import BaseCommand
 from django_celery_beat.models import PeriodicTask, IntervalSchedule
 
-from datetime import datetime, timedelta
+INTERVAL_SECONDS = 15
 
 
 class Command(BaseCommand):
@@ -17,12 +17,11 @@ class Command(BaseCommand):
         """Исполнение административной команды."""
 
         schedule, created = IntervalSchedule.objects.get_or_create(
-            every=15,
+            every=INTERVAL_SECONDS,
             period=IntervalSchedule.SECONDS,
         )
         PeriodicTask.objects.create(
             interval=schedule,
-            name='Telegram bot get and process updates',
-            task='tasks.get_and_process_tg_updates',  
-            # expires=datetime.utcnow() + timedelta(seconds=25)
+            name='Telegram bot get and process updates.',
+            task='tasks.get_and_process_tg_updates',
         )
