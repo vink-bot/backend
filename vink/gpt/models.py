@@ -44,7 +44,7 @@ class Message(models.Model):
     status = models.CharField(choices=STATUS_TYPES, max_length=15)
     user = models.CharField(choices=USER_TYPES, max_length=15)
     recipient = models.CharField(
-        choices=RECEPIENT_TYPES, max_length=15, default='GPT')
+        choices=USER_TYPES, max_length=15, default='GPT')
     is_handled = models.BooleanField(default=True)
     telegram_number_chat = models.PositiveBigIntegerField(
         blank=True, null=True)

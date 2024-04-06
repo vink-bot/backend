@@ -31,8 +31,10 @@ def check_is_in_operator_mode(chat_token: str) -> bool:
     Возвращает True при наличии активного OperatorChat c пользователем
     или действующих приглашений Invite для операторов."""
     token = Token.objects.filter(chat_token=chat_token).first()
-    is_in_operator_chats = OperatorChat.objects.filter(token=token).exists()
-    is_in_invites = Invite.objects.filter(token=token).exists()
+    is_in_operator_chats = OperatorChat.objects.filter(
+        token=token, is_active=True).exists()
+    is_in_invites = Invite.objects.filter(
+        token=token, is_active=True).exists()
     return is_in_operator_chats or is_in_invites
 
 
@@ -162,6 +164,8 @@ class VinkTgBotGetter:
                     update.effective_user.id
                 ),
             )
+            if callback_data:
+                incoming_message.client_token = callback_data
             last_update_id = update.update_id
 
             result.append(incoming_message)
@@ -383,6 +387,7 @@ class VinkTgBotGetter:
                 token=token,
                 status="0",
                 user="OPERATOR",
+                recipient="USER",
                 telegram_number_chat=message.user_id,
             )
             message_object.save()
@@ -415,6 +420,7 @@ class VinkTgBotGetter:
                 invite, created = Invite.objects.get_or_create(
                     token=self.__get_token(chat_token),
                     operator=self.__get_operator(chat_id),
+                    is_active=True
                 )
                 if created:
                     self.__send_message(
@@ -551,7 +557,7 @@ class VinkTgBotGetter:
         """Отправляет оператору предупреждение
         о начале переписки с клиентом."""
         text = (
-            f"Вы вступили в переписку с клиентом {message.client_token}. "
+            f"Вы вступили в переписку с клиентом {message.callback_data}. "
             "Все последующие Ваши сообщения будут пересланы клиенту!"
         )
         self.bot.answer_callback_query(
