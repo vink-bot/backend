@@ -11,4 +11,4 @@ celery_singleton==0.3.1
 python-telegram-bot==13.7
 django-celery-beat==2.6.0
 gunicorn==20.1.0
-django-cors-headers==3.14.0
+django-cors-headers==4.3.1
