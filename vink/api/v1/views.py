@@ -16,7 +16,7 @@ from tg.tg_bot import VinkTgBotGetter, check_is_in_operator_mode
 
 
 class SendMessageGPT(APIView):
-    """."""
+    """Предать сообщение."""
 
     # authentication_classes = [authentication.TokenAuthentication]
     # permission_classes = [permissions.IsAdminUser]
@@ -49,13 +49,14 @@ class SendMessageGPT(APIView):
 
 
 class ReceiveMessage(APIView):
-    """."""
+    """Получить сообщения."""
 
     def get(self, request):
         headers = request.headers
         chat_token = headers.get("chat-token")
         token = Token.objects.filter(chat_token=chat_token).first()
-        messages = token.messages.filter(status="0")
+        messages = Message.objects.filter(token=token, status="0")
+        # messages = token.messages.filter(status="0")
         serializer = MessageSerializer(messages, many=True)
         for message in messages:
             message.status = "1"

@@ -10,7 +10,16 @@ class Token(models.Model):
         chat_token (str): Токен анонимного пользователя в чате.
     """
 
-    chat_token = models.CharField(max_length=100, unique=True)
+    chat_token = models.CharField(
+        verbose_name="Токен чата пользователя",
+        max_length=100, 
+        unique=True,
+    )
+
+    class Meta:
+        """Настройка модели Token."""
+        verbose_name = "Токен чата пользователя"
+        verbose_name_plural = "Токены чатов пользователей"
 
 
 class Message(models.Model):
@@ -31,15 +40,37 @@ class Message(models.Model):
         ("OPERATOR", "OPERATOR"),
     )
 
-    message = models.TextField(blank=True, null=True)
-    date_create = models.DateTimeField(auto_now_add=True)
-    token = models.ForeignKey(
-        Token, on_delete=models.CASCADE, related_name="messages"
+    message = models.TextField(
+        verbose_name="Текст сообщения", blank=True, null=True)
+    date_create = models.DateTimeField(
+        verbose_name="Дата создания",
+        auto_now_add=True
     )
-    status = models.CharField(choices=STATUS_TYPES, max_length=15)
-    user = models.CharField(choices=USER_TYPES, max_length=15)
+    token = models.ForeignKey(
+        to=Token,
+        on_delete=models.CASCADE, 
+        related_name="messages",
+        verbose_name="Токен пользователя",
+    )
+    status = models.CharField(
+        verbose_name="Статус", choices=STATUS_TYPES, max_length=15)
+    user = models.CharField(
+        verbose_name="Отправитель", choices=USER_TYPES, max_length=15)
     recipient = models.CharField(
-        choices=USER_TYPES, max_length=15, default='GPT')
-    is_handled = models.BooleanField(default=True)
+        verbose_name="Получатель",
+        choices=USER_TYPES, 
+        max_length=15, 
+        default="GPT",
+    )
+    is_handled = models.BooleanField(
+        default=True, verbose_name="Обработано ТГ-ботом",)
     telegram_number_chat = models.PositiveBigIntegerField(
-        blank=True, null=True)
+        verbose_name="ИД оператора в телеграмм",
+        blank=True, 
+        null=True,
+    )
+
+    class Meta:
+        """Настройка модели Message."""
+        verbose_name = "Сообщение"
+        verbose_name_plural = "Сообщения"
