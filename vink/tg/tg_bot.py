@@ -1,26 +1,28 @@
 """Модуль телеграмм бота."""
 
 from datetime import date, datetime
-from time import sleep
 from logging import Logger
+from time import sleep
 from typing import Optional
 
+from gpt.models import Message, Token
 from telegram import (
-    Bot,
-    InlineKeyboardButton,
+    Bot, 
+    InlineKeyboardButton, 
     InlineKeyboardMarkup,
-    KeyboardButton,
-    ReplyKeyboardMarkup,
-    ReplyMarkup,
+    KeyboardButton, 
+    ReplyKeyboardMarkup, 
+    ReplyMarkup, 
     Update,
 )
 
+from .constants import (
+    BETWEEN_STEPS_PAUSE_SECONDS, 
+    CHAT_TOKEN_SLICE_SIZE,
+    FINISH_CHAT_MESSAGE
+    )
 from .models import Invite, LastUpdate, Operator, OperatorChat
 from .tg_utils import IncomingMessage
-from gpt.models import Message, Token
-
-FINISH_CHAT_MESSAGE = "Чат окончен."
-CHAT_TOKEN_SLICE_SIZE = 5
 
 
 def check_is_in_operator_mode(chat_token: str) -> bool:
@@ -47,7 +49,7 @@ class VinkTgBotGetter:
         self.logger = logger
         self.bot = Bot(token=telegram_bot_token)
         # Значение паузе в секундах между шагами в итерации бота
-        self.between_steps_pause = 2
+        self.between_steps_pause = BETWEEN_STEPS_PAUSE_SECONDS
 
     def run(self):
         """Запускает итерацию работы бота."""

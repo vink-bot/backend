@@ -31,11 +31,6 @@ class Message(models.Model):
         ("OPERATOR", "OPERATOR"),
     )
 
-    RECEPIENT_TYPES = (
-        ("GPT", "GPT"),
-        ("OPERATOR", "OPERATOR"),
-    )
-
     message = models.TextField(blank=True, null=True)
     date_create = models.DateTimeField(auto_now_add=True)
     token = models.ForeignKey(

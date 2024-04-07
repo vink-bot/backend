@@ -1,7 +1,7 @@
 from django.core.management import BaseCommand
 from django_celery_beat.models import PeriodicTask, IntervalSchedule
 
-INTERVAL_SECONDS = 15
+from tg.constants import TG_BOT_START_INTERVAL_SECONDS
 
 
 class Command(BaseCommand):
@@ -17,7 +17,7 @@ class Command(BaseCommand):
         """Исполнение административной команды."""
 
         schedule, created = IntervalSchedule.objects.get_or_create(
-            every=INTERVAL_SECONDS,
+            every=TG_BOT_START_INTERVAL_SECONDS,
             period=IntervalSchedule.SECONDS,
         )
         PeriodicTask.objects.create(
