@@ -137,3 +137,5 @@ CELERY_BROKER_URL = "redis://redis:6379/0"
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+
+SWAGGER_SETTINGS = {"USE_SESSION_AUTH": False}
