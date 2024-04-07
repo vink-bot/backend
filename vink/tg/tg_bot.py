@@ -135,7 +135,7 @@ class VinkTgBotGetter:
             offset = LastUpdate.objects.first().update_id + 1
         else:
             offset = None
-        update: list[Update] = []
+        updates: list[Update] = []
         try:
             updates: list[Update] = self.bot.get_updates(offset=offset)
             self.logger.debug("Bot get updates: ", len(updates), ".")
