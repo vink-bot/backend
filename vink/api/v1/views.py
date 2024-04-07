@@ -1,4 +1,5 @@
-import datetime
+"""Модуль представлений для приложения API."""
+
 import logging
 
 from django.conf import settings
@@ -11,8 +12,6 @@ from gpt.models import Message, Token
 from gpt.tasks import communicate_gpt
 from gpt.utils import send_message_gpt
 from tg.tg_bot import VinkTgBotGetter, check_is_in_operator_mode
-
-# from gpt.tg_utils import send_message_to_operator_via_tg_bot, send_notification_to_operators
 
 
 class SendMessageGPT(APIView):

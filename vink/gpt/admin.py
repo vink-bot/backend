@@ -1,13 +1,17 @@
+"""Настройка отображения моделей сообщений GPT в админ-панели."""
+
 from django.contrib import admin
 
 from .models import Message, Token
 from tg.models import Operator
 
 
+@admin.register(Token)
 class TokenAdmin(admin.ModelAdmin):
     list_display = ("id", "chat_token")
 
 
+@admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
     list_display = (
         "id",
@@ -19,14 +23,14 @@ class MessageAdmin(admin.ModelAdmin):
         "operator_verbose",
         "recipient"
     )
-    
+
     @admin.display(description="Токен пользователя")
     def chat_token(self, object: Message):
         chat_token = ""
         if object.token is not None:
             chat_token = object.token.chat_token
         return chat_token
-    
+
     @admin.display(description="Статус доставки")
     def status_verbose(self, object: Message):
         if object.user == "USER":
@@ -34,13 +38,13 @@ class MessageAdmin(admin.ModelAdmin):
                 return "Доставлено"
             else:
                 return "Ожидает"
-        else:        
+        else:
             if object.status == "0":
                 return "Ожидает"
             elif object.status == "1":
                 return "Доставлено"
         return "Отмена"
-    
+
     @admin.display(description="Оператор")
     def operator_verbose(self, object: Message):
         operator: Operator = Operator.objects.filter(
@@ -48,8 +52,3 @@ class MessageAdmin(admin.ModelAdmin):
         if operator is not None:
             return operator.full_name
         return "-"
-
-admin.site.register(Token, TokenAdmin)
-admin.site.register(Message, MessageAdmin)
-
-

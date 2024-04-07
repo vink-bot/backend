@@ -7,17 +7,17 @@ from typing import Optional
 
 from gpt.models import Message, Token
 from telegram import (
-    Bot, 
-    InlineKeyboardButton, 
+    Bot,
+    InlineKeyboardButton,
     InlineKeyboardMarkup,
-    KeyboardButton, 
-    ReplyKeyboardMarkup, 
-    ReplyMarkup, 
+    KeyboardButton,
+    ReplyKeyboardMarkup,
+    ReplyMarkup,
     Update,
 )
 
 from .constants import (
-    BETWEEN_STEPS_PAUSE_SECONDS, 
+    BETWEEN_STEPS_PAUSE_SECONDS,
     CHAT_TOKEN_SLICE_SIZE,
     FINISH_CHAT_MESSAGE
     )

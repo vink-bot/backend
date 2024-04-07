@@ -1,5 +1,4 @@
-import datetime
-import time
+"""Модуль задач приложения GPT."""
 
 from celery import shared_task
 from celery_singleton import Singleton
@@ -13,7 +12,7 @@ from .utils import send_message_gpt
 
 @shared_task()
 def communicate_gpt(chat_token, message, message_id):
-    """."""
+    """Задача отправки сообщений в GPT и получение ответа."""
     from .models import Message, Token
 
     with transaction.atomic():

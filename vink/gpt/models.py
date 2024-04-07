@@ -12,7 +12,7 @@ class Token(models.Model):
 
     chat_token = models.CharField(
         verbose_name="Токен чата пользователя",
-        max_length=100, 
+        max_length=100,
         unique=True,
     )
 
@@ -48,7 +48,7 @@ class Message(models.Model):
     )
     token = models.ForeignKey(
         to=Token,
-        on_delete=models.CASCADE, 
+        on_delete=models.CASCADE,
         related_name="messages",
         verbose_name="Токен пользователя",
     )
@@ -58,15 +58,15 @@ class Message(models.Model):
         verbose_name="Отправитель", choices=USER_TYPES, max_length=15)
     recipient = models.CharField(
         verbose_name="Получатель",
-        choices=USER_TYPES, 
-        max_length=15, 
+        choices=USER_TYPES,
+        max_length=15,
         default="GPT",
     )
     is_handled = models.BooleanField(
         default=True, verbose_name="Обработано ТГ-ботом",)
     telegram_number_chat = models.PositiveBigIntegerField(
         verbose_name="ИД оператора в телеграмм",
-        blank=True, 
+        blank=True,
         null=True,
     )
 
