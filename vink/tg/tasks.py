@@ -1,9 +1,11 @@
-from logging import Logger
+"""Модуль для задачи Celery-Beat запускающей телеграм бота по расписанию."""
+
 from celery.utils.log import get_task_logger
 from vink.celery import app
 
 
 logger = get_task_logger(__name__)
+
 
 @app.task(name='tasks.get_and_process_tg_updates')
 def get_and_process_tg_updates():

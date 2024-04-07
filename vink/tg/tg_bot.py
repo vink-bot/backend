@@ -1,29 +1,28 @@
+"""Модуль телеграмм бота."""
+
 from datetime import date, datetime
 from logging import Logger
+from time import sleep
 from typing import Optional
 
+from gpt.models import Message, Token
 from telegram import (
-    Bot,
-    CallbackQuery,
-    InlineKeyboardButton,
+    Bot, 
+    InlineKeyboardButton, 
     InlineKeyboardMarkup,
-    KeyboardButton,
-    ReplyKeyboardMarkup,
-    ReplyMarkup,
+    KeyboardButton, 
+    ReplyKeyboardMarkup, 
+    ReplyMarkup, 
     Update,
 )
-from telegram.ext import (
-    CallbackContext,
-    CallbackQueryHandler,
-    CommandHandler,
-    Filters,
-    MessageHandler,
-    Updater,
-)
 
+from .constants import (
+    BETWEEN_STEPS_PAUSE_SECONDS, 
+    CHAT_TOKEN_SLICE_SIZE,
+    FINISH_CHAT_MESSAGE
+    )
 from .models import Invite, LastUpdate, Operator, OperatorChat
 from .tg_utils import IncomingMessage
-from gpt.models import Message, Token
 
 
 def check_is_in_operator_mode(chat_token: str) -> bool:
@@ -31,8 +30,10 @@ def check_is_in_operator_mode(chat_token: str) -> bool:
     Возвращает True при наличии активного OperatorChat c пользователем
     или действующих приглашений Invite для операторов."""
     token = Token.objects.filter(chat_token=chat_token).first()
-    is_in_operator_chats = OperatorChat.objects.filter(token=token).exists()
-    is_in_invites = Invite.objects.filter(token=token).exists()
+    is_in_operator_chats = OperatorChat.objects.filter(
+        token=token, is_active=True
+    ).exists()
+    is_in_invites = Invite.objects.filter(token=token, is_active=True).exists()
     return is_in_operator_chats or is_in_invites
 
 
@@ -43,20 +44,22 @@ class VinkTgBotGetter:
         """Конструктор телеграмм бота.
         Аргументы:
             telegram_bot_token - токен бота
-            logger: logging.Logger - объект логера.
+            logger: logging.Logger - объект логгера.
         """
         self.logger = logger
         self.bot = Bot(token=telegram_bot_token)
+        # Значение паузе в секундах между шагами в итерации бота
+        self.between_steps_pause = BETWEEN_STEPS_PAUSE_SECONDS
 
     def run(self):
         """Запускает итерацию работы бота."""
 
         # Получаем обновления с телеграмма
         self.__get_and_parse_updates()
-
+        sleep(self.between_steps_pause)
         # Рассылка уведомлений о новых сообщениях пользователей
         self.__send_invites_for_available_operators()
-
+        sleep(self.between_steps_pause)
         # Рассылка сообщений операторам
         self.__send_client_messages()
 
@@ -127,7 +130,7 @@ class VinkTgBotGetter:
 
     def __get_updates(self) -> list[IncomingMessage]:
         """Получить обновления из телеграмм."""
-        if LastUpdate.objects.exists():
+        if LastUpdate.objects.all().exists():
             offset = LastUpdate.objects.first().update_id + 1
         else:
             offset = None
@@ -139,7 +142,6 @@ class VinkTgBotGetter:
         callback_data = None
         callback_query_id = None
         for update in updates:
-            print(update)  # Дебаг принт
             # Если есть callback данные, извлекаем их.
             # (это для кнопки начать переписку)
             if hasattr(update, "callback_query"):
@@ -162,10 +164,12 @@ class VinkTgBotGetter:
                     update.effective_user.id
                 ),
             )
+            if callback_data:
+                incoming_message.client_token = callback_data
             last_update_id = update.update_id
 
             result.append(incoming_message)
-        if offset:
+        if offset is not None:
             last_update_object = LastUpdate.objects.first()
             last_update_object.update_id = last_update_id
             last_update_object.save()
@@ -207,13 +211,16 @@ class VinkTgBotGetter:
                 self.__set_operator_active(user_id)
 
             else:
-                self.__message_operator_is_active_all_ready(message)
+                self.__message_operator_is_active_all_ready(user_id)
         else:
             # Команда не от оператора, создаем оператора не активным.
             self.__create_operator(message)
 
     def __create_operator(self, message: IncomingMessage):
-        """Создает оператора с is_enabled = False."""
+        """Создает оператора с is_enabled = False
+        Из данных в IncomingMessage
+            Аргументы: message: IncomingMessage.
+        """
         Operator.objects.create(
             tg_user_id=message.user_id,
             first_name=message.user_first_name,
@@ -239,7 +246,20 @@ class VinkTgBotGetter:
                     "сообщений нажмите кнопку start."
                 ),
             )
-            self.__detach_operator_and_client(message.user_id)
+            self.__detach_operator_and_client(
+                operator_user_id=message.user_id,
+                client_token=message.client_token,
+            )
+            message_object = Message.objects.create(
+                message=FINISH_CHAT_MESSAGE,
+                token=self.__get_token(message.client_token),
+                status="0",
+                user="OPERATOR",
+                recipient="USER",
+                telegram_number_chat=message.user_id,
+            )
+            message_object.save()
+
         else:
             self.logger.debug(
                 f"Команда Финиш от пользователя {message.user_id},"
@@ -247,42 +267,38 @@ class VinkTgBotGetter:
             )
 
     def __disable_invites(self, token: Token):
-        """Выключает приглашения операторов для token."""
+        """Выключает приглашения операторов для token.
+        Аргументы: token: Token."""
         invites_queryset = Invite.objects.filter(token=token, is_active=True)
         for invite in invites_queryset:
             invite.is_active = False
             invite.save()
 
     def __callback_data_handler(self, message: IncomingMessage):
-        """Обработчик для кнопки Начать переписку с клиентом."""
-        # self.logger.error('Вход в калбек')
+        """Обработчик callback_data
+        (для кнопки Начать переписку с клиентом)."""
+
         if self.__check_user_is_operator(message.user_id):
-            # self.logger.error('Оператор - оператор')
+
             if self.__check_operator_is_waiting(message.user_id):
-                # self.logger.error('Оператор в ожидании')
+
                 # Уведомляем оператора о начале работы с клиентом
                 self.__alert_operator_start_messaging_with_client(message)
                 # Проверяем наличие токена из мессаджа в модели
                 token = Token.objects.filter(
                     chat_token=message.callback_data
                 ).first()
-                operator: Operator = Operator.objects.filter(
-                    tg_user_id=message.user_id, is_enabled=True
-                ).first()
-                operator_chat: OperatorChat = OperatorChat.objects.filter(
-                    operator=operator,
-                    is_active=True,
-                ).first()  # token=None #  token__isnull=True,
-                # self.logger.error('Перед входом в оператор чат')
-                # self.logger.error(message.callback_data)
-                # self.logger.error(token)
-                # self.logger.error(operator)
-                # self.logger.error(operator_chat)
-                # self.logger.error(operator_chat.token.chat_token)
 
-                if token and operator and operator_chat.token is None:
-                    # Изменяем запись в OperatorChat
-                    # self.logger.error('Вошли в оператор чат здесь ставится токен')
+                operator_chat = OperatorChat.objects.filter(
+                    operator__tg_user_id=message.user_id,
+                    operator__is_enabled=True,
+                    is_active=True,
+                ).first()
+                invite = Invite.objects.filter(
+                    token=token, operator__tg_user_id=message.user_id
+                ).first()
+
+                if token and operator_chat.token is None and invite:
                     operator_chat.token = token
                     operator_chat.save()
                     self.__disable_invites(token)
@@ -303,8 +319,9 @@ class VinkTgBotGetter:
                     if len(previous_chat) > 0:
                         self.__send_message(
                             message=(
-                                f"Предыдущая переписка с {token.chat_token}, "
-                                f"всего {len(previous_chat)} сообщений:"
+                                "Предыдущая переписка с "
+                                f"{token.chat_token[:CHAT_TOKEN_SLICE_SIZE]},"
+                                f" всего {len(previous_chat)} сообщений:"
                             ),
                             chat_id=message.user_id,
                         )
@@ -327,7 +344,7 @@ class VinkTgBotGetter:
                         self.__send_message(
                             message=(
                                 f"Необработанные сообщения от "
-                                f"{token.chat_token}, "
+                                f"{token.chat_token[:CHAT_TOKEN_SLICE_SIZE]}, "
                                 f"всего {len(client_messages)} сообщений:"
                             ),
                             chat_id=message.user_id,
@@ -367,29 +384,19 @@ class VinkTgBotGetter:
     def __receive_text_message_handler(self, message: IncomingMessage):
         """Обработчик текстового сообщения."""
 
-        if (
-            self.__check_token(message.client_token)
-            and self.__check_user_is_operator(message.user_id)
-            and self.__check_operator_chat_with_client(
-                operator_user_id=message.user_id,
-                client_token=message.client_token,
-            )
+        if self.__check_operator_chat_with_client(
+            operator_user_id=message.user_id,
+            client_token=message.client_token,
         ):
-            token = Token.objects.filter(
-                chat_token=message.client_token
-            ).first()
             message_object = Message.objects.create(
                 message=message.message_text,
-                token=token,
+                token=self.__get_token(message.client_token),
                 status="0",
                 user="OPERATOR",
+                recipient="USER",
                 telegram_number_chat=message.user_id,
             )
             message_object.save()
-
-    def __check_token(self, token: str) -> bool:
-        """Возвращает True если токен зарегистрирован."""
-        return Token.objects.filter(chat_token=token).exists()
 
     def __send_invites_for_available_operators(self):
         """Рассылает уведомления свободным операторам.
@@ -410,19 +417,23 @@ class VinkTgBotGetter:
             ).values_list("token__chat_token", flat=True)
         )
 
-        for chat_id in operator_waiting_set:
+        for operator_user_id in operator_waiting_set:
             for chat_token in tokens:
                 invite, created = Invite.objects.get_or_create(
                     token=self.__get_token(chat_token),
-                    operator=self.__get_operator(chat_id),
+                    operator=self.__get_operator(operator_user_id),
+                    is_active=True,
                 )
                 if created:
                     self.__send_message(
-                        chat_id=chat_id,
+                        chat_id=operator_user_id,
                         reply_markup=self.__get_start_conversation_keyboard(
                             chat_token
                         ),
-                        message=f"Новое сообщение от клиента {chat_token}.",
+                        message=(
+                            "Новое сообщение от клиента "
+                            f"{chat_token[:CHAT_TOKEN_SLICE_SIZE]}."
+                        ),
                     )
 
     def __get_token(self, token: str) -> Optional[Token]:
@@ -442,12 +453,13 @@ class VinkTgBotGetter:
     def __check_user_is_operator(self, user_id: int) -> bool:
         """Проверяет является ли пользователь ТГ,
         отправивший сообщение боту, - оператором."""
-        operator: Operator = Operator.objects.filter(
-            tg_user_id=user_id, is_enabled=True
-        ).first()
-        if operator:
-            return True
-        return False
+
+        return (
+            Operator.objects.filter(
+                tg_user_id=user_id, is_enabled=True
+            ).first()
+            is not None
+        )
 
     def __get_client_token_by_operator(self, user_id: int) -> Optional[str]:
         """Возвращает токен клиента, назначенного оператору для разговора."""
@@ -471,27 +483,24 @@ class VinkTgBotGetter:
         if operator_chat:
             return operator_chat.operator.tg_user_id
 
-    def __detach_operator_and_client(self, operator_user_id):
+    def __detach_operator_and_client(
+        self, operator_user_id: int, client_token: str
+    ) -> None:
         """Удаляет связи между оператором и клиентом в конце разговора.
         Закрывает чат оператора с клиентом."""
-        client_token = self.__get_client_token_by_operator(operator_user_id)
-        if client_token:
-            operator_chat: OperatorChat = OperatorChat.objects.filter(
-                token__chat_token=client_token,
-                operator__tg_user_id=operator_user_id,
-                is_active=True,
-            ).first()
-            if operator_chat:
-                operator_chat.is_active = False
-                operator_chat.save()
-            else:
-                self.logger.error(
-                    f"Отключение не активного оператора {operator_user_id}."
-                )
+
+        operator_chat: OperatorChat = OperatorChat.objects.filter(
+            token__chat_token=client_token,
+            operator__tg_user_id=operator_user_id,
+            is_active=True,
+        ).first()
+        if operator_chat:
+            operator_chat.is_active = False
+            operator_chat.save()
         else:
             self.logger.error(
                 f"Отключение оператора {operator_user_id}, которому "
-                "не назначен клиент."
+                f"не назначен клиент {client_token} ."
             )
 
     def __check_operator_chat_with_client(
@@ -502,7 +511,10 @@ class VinkTgBotGetter:
         Если назначен клиенту client_token, возвращает - True."""
         operator: Operator = self.__get_operator(user_id=operator_user_id)
         operator_chat: OperatorChat = OperatorChat.objects.filter(
-            operator=operator, is_active=True, token__chat_token=client_token
+            # operator__tg_user_id=operator_user_id,
+            operator=operator,
+            is_active=True,
+            token__chat_token=client_token,
         ).first()
         return operator_chat is not None
 
@@ -513,7 +525,10 @@ class VinkTgBotGetter:
         Если не активен или назначен другому клиенту, возвращает - True."""
         operator: Operator = self.__get_operator(user_id=operator_user_id)
         operator_chat: OperatorChat = OperatorChat.objects.filter(
-            operator=operator, is_active=True, token__isnull=True
+            # operator__tg_user_id=operator_user_id,
+            operator=operator,
+            is_active=True,
+            token__isnull=True,
         ).first()
         return operator_chat is not None
 
@@ -525,7 +540,9 @@ class VinkTgBotGetter:
         ожидает приглашений или уже работает с клиентом."""
         operator: Operator = self.__get_operator(user_id=operator_user_id)
         operator_chat: OperatorChat = OperatorChat.objects.filter(
-            operator=operator, is_active=True
+            # operator__tg_user_id=operator_user_id,
+            operator=operator,
+            is_active=True,
         ).first()
         return operator_chat is not None
 
@@ -536,13 +553,16 @@ class VinkTgBotGetter:
             operator=operator, is_active=True, token=None
         )
 
-    def __message_operator_is_active_all_ready(self, message: IncomingMessage):
+    def __message_operator_is_active_all_ready(self, operator_user_id: int):
         """Отправляет оператору предупреждение о том,
-        что он уже находится в режиме ожидания."""
+        что он уже находится в режиме ожидания.
+            Аргументы:
+                operator_user_id: int (user_id оператора в телеграмм).
+        """
         text = "Вы уже в режиме в ожидания."
         self.__send_message(
             message=text,
-            chat_id=message.user_id,
+            chat_id=operator_user_id,
         )
 
     def __alert_operator_start_messaging_with_client(
@@ -551,7 +571,7 @@ class VinkTgBotGetter:
         """Отправляет оператору предупреждение
         о начале переписки с клиентом."""
         text = (
-            f"Вы вступили в переписку с клиентом {message.client_token}. "
+            f"Вы вступили в переписку с клиентом {message.callback_data}. "
             "Все последующие Ваши сообщения будут пересланы клиенту!"
         )
         self.bot.answer_callback_query(
