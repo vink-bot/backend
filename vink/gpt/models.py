@@ -74,3 +74,10 @@ class Message(models.Model):
         """Настройка модели Message."""
         verbose_name = "Сообщение"
         verbose_name_plural = "Сообщения"
+
+    def __str__(self):
+        """Строковое представление сообщения."""
+        chat_token = ""
+        if self.token is not None:
+            chat_token = self.token.chat_token
+        return f"{self.date_create} от {chat_token}: {self.message}"
