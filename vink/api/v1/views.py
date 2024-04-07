@@ -52,7 +52,6 @@ class ReceiveMessage(APIView):
         chat_token = headers.get("chat-token")
         token = Token.objects.filter(chat_token=chat_token).first()
         messages = Message.objects.filter(token=token, status="0")
-        # messages = token.messages.filter(status="0")
         serializer = MessageSerializer(messages, many=True)
         for message in messages:
             message.status = "1"
