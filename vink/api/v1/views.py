@@ -3,7 +3,7 @@
 import logging
 
 from django.conf import settings
-from rest_framework import authentication, permissions, status
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -16,9 +16,6 @@ from tg.tg_bot import VinkTgBotGetter, check_is_in_operator_mode
 
 class SendMessageGPT(APIView):
     """Предать сообщение."""
-
-    # authentication_classes = [authentication.TokenAuthentication]
-    # permission_classes = [permissions.IsAdminUser]
 
     def post(self, request):
         headers = request.headers
