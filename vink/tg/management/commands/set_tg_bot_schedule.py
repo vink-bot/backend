@@ -1,7 +1,7 @@
 """Модуль административной команды установки расписания запуска ТГ бота."""
 
 from django.core.management import BaseCommand
-from django_celery_beat.models import PeriodicTask, IntervalSchedule
+from django_celery_beat.models import IntervalSchedule, PeriodicTask
 
 from tg.constants import TG_BOT_START_INTERVAL_SECONDS
 
@@ -11,8 +11,8 @@ class Command(BaseCommand):
     запуска телеграмм-бота."""
 
     help = (
-        'Устанавливает расписание запуска телеграм-бота.'
-        'Период запуска каждые 15 секунд.'
+        "Устанавливает расписание запуска телеграм-бота."
+        "Период запуска каждые 15 секунд."
     )
 
     def handle(self, *args, **options):
@@ -24,6 +24,6 @@ class Command(BaseCommand):
         )
         PeriodicTask.objects.create(
             interval=schedule,
-            name='Telegram bot get and process updates.',
-            task='tasks.get_and_process_tg_updates',
+            name="Telegram bot get and process updates.",
+            task="tasks.get_and_process_tg_updates",
         )

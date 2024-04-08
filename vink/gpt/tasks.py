@@ -1,11 +1,7 @@
 """Модуль задач приложения GPT."""
 
 from celery import shared_task
-from celery_singleton import Singleton
-from django.conf import settings
-from django.core.cache import cache
 from django.db import transaction
-from django.db.models import F
 
 from .utils import send_message_gpt
 
@@ -41,7 +37,8 @@ def is_gpt_message_correct(message: str) -> bool:
 
     fail_1 = "искусственного интеллекта"
     fail_2 = "искусственный интеллект"
+    fail_3 = "я не могу"
 
-    if fail_1 in message or fail_2 in message:
+    if fail_1 in message or fail_2 in message or fail_3 in message:
         return False
     return True

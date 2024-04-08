@@ -1,9 +1,11 @@
 import requests
+from django.conf import settings
 
 
 def send_message_gpt(message):
+    """Отправляет сообщение - yandexGPT, и возвращает от него ответ."""
     prompt = {
-        "modelUri": "gpt://b1gpm5j7r2h5egbhgo2e/yandexgpt-lite",
+        "modelUri": f"gpt://{settings.CATALOG_IDENTIFIER}/yandexgpt-lite",
         "completionOptions": {
             "stream": False,
             "temperature": 0.6,
@@ -31,9 +33,7 @@ def send_message_gpt(message):
     url = "https://llm.api.cloud.yandex.net/foundationModels/v1/completion"
     headers = {
         "Content-Type": "application/json; charset=utf-8",
-        "Authorization": "Api-Key AQVNy3UCV8LfNsRlUawiq_Ac9Ior7IBcMkcFQWt8".encode(
-            "utf-8"
-        ),
+        "Authorization": f"Api-Key {settings.API_KEY}".encode("utf-8"),
     }
     response = requests.post(url, headers=headers, json=prompt)
     responce_data = response.json()
