@@ -7,17 +7,17 @@ from typing import Optional
 
 from gpt.models import Message, Token
 from telegram import (
-    Bot, 
-    InlineKeyboardButton, 
+    Bot,
+    InlineKeyboardButton,
     InlineKeyboardMarkup,
-    KeyboardButton, 
-    ReplyKeyboardMarkup, 
-    ReplyMarkup, 
+    KeyboardButton,
+    ReplyKeyboardMarkup,
+    ReplyMarkup,
     Update,
 )
 
 from .constants import (
-    BETWEEN_STEPS_PAUSE_SECONDS, 
+    BETWEEN_STEPS_PAUSE_SECONDS,
     CHAT_TOKEN_SLICE_SIZE,
     FINISH_CHAT_MESSAGE
     )
@@ -76,6 +76,7 @@ class VinkTgBotGetter:
             )
             if chat_id:
                 self.__send_message(message=item.message, chat_id=chat_id)
+                item.telegram_number_chat = chat_id
                 item.is_handled = True
                 item.save()
 
@@ -134,9 +135,16 @@ class VinkTgBotGetter:
             offset = LastUpdate.objects.first().update_id + 1
         else:
             offset = None
+        updates: list[Update] = []
+        try:
+            updates: list[Update] = self.bot.get_updates(offset=offset)
+            self.logger.debug("Bot get updates: ", len(updates), ".")
+        except Exception as error:
+            error_message = (
+                f"Чат-бот не смог получить обновления. {error}"
+            )
+            self.logger.error(error_message)
 
-        updates: list[Update] = self.bot.get_updates(offset=offset)
-        self.logger.debug("Bot get updates: ", len(updates), ".")
         result = []
         last_update_id = 0
         callback_data = None

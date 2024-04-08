@@ -12,7 +12,6 @@ class LastUpdate(models.Model):
         update_id (int): последний обработанный идентификатор обновления.
 
     """
-
     update_id = models.PositiveBigIntegerField(
         verbose_name="ИД последнего обработанного обновления",
         blank=False,
@@ -21,7 +20,6 @@ class LastUpdate(models.Model):
 
     class Meta:
         """Настройка модели LastUpdate."""
-
         verbose_name = "ИД обновлений ТГ"
         verbose_name_plural = "ИД обновлений ТГ"
 
@@ -36,7 +34,6 @@ class Operator(models.Model):
         username = models.CharField(max_length=100, blank=True, null=True)
         is_enabled = models.BooleanField(default=False)
     """
-
     tg_user_id = models.PositiveBigIntegerField(
         verbose_name="ИД оператора в телеграм", blank=False, null=False
     )
@@ -49,26 +46,21 @@ class Operator(models.Model):
     username = models.CharField(
         verbose_name="Имя пользователя", max_length=100, blank=True, null=True
     )
-    is_enabled = models.BooleanField(
-        verbose_name="Подтвержден",
-        default=False)
+    is_enabled = models.BooleanField(verbose_name="Подтвержден", default=False)
 
     class Meta:
         """Настройка модели Operator."""
+
         verbose_name = "Оператор"
         verbose_name_plural = "операторы"
 
     @property
-    def enabled_verbose(self):
-        """Строковое представление для статуса подтверждения (is_enabled)."""
-        if self.is_enabled:
-            return "Подтвержден, работа в боте разрешена."
-        return "Не подтвержден, работа в боте не разрешена."
-
-    @property
     def full_name(self):
         """Полное имя оператора."""
-        return f"{self.username} {self.first_name} {self.last_name}"
+        username = self.username if self.username is not None else ""
+        first_name = self.first_name if self.first_name is not None else ""
+        last_name = self.last_name if self.last_name is not None else ""
+        return f"{username} {first_name} {last_name}"
 
     def __str__(self):
         """Строковое представление оператора."""
@@ -109,17 +101,10 @@ class Invite(models.Model):
 
     class Meta:
         """Настройка модели Invite."""
+
         verbose_name = "Приглашение оператора"
         verbose_name_plural = "приглашения операторам"
-    
-    @property
-    def active_verbose(self):
-        """Строковое свойство для представления поля is_active."""
-        if self.is_active:
-            return "Активен"
-        return "Отключен"
 
-    
     def __str__(self):
         """Строковое представление модели Invite."""
         return (
@@ -159,31 +144,14 @@ class OperatorChat(models.Model):
 
     class Meta:
         """Настройка модели OperatorChat."""
+
         verbose_name = "Чат оператора в ТГ"
         verbose_name_plural = "Чаты операторов в ТГ"
 
-    @property
-    def active_verbose(self):
-        """Строковое свойство для представления поля is_active."""
-        if self.is_active:
-            return "Активен"
-        return "Отключен"
-
-    @property
-    def status_verbose(self):
-        """Строковое свойство для представления поля статуса чата."""
-        if self.is_active and self.token is not None:
-            return "Активен"
-        elif self.is_active and self.token is None:
-            return "В ожидании клиента"
-        elif self.is_active is False and self.token is not None:
-            return "Завершен"
-        return "Отключен"
-
     def __str__(self):
         """Строковое представление для модели OperatorChat."""
-        return (
-            f"{self.operator.full_name} - "
-            f"{self.token.chat_token[:CHAT_TOKEN_SLICE_SIZE]} - "
-            f"{self.status_verbose}"
-        )
+        status = "Активен" if self.is_active else "Закрыт"
+        chat_token = ""
+        if self.token is not None:
+            chat_token = self.token.chat_token[:CHAT_TOKEN_SLICE_SIZE]
+        return f"{self.operator.full_name} - " f"{chat_token} - " f"{status}"

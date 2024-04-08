@@ -1,8 +1,9 @@
-import datetime
+"""Модуль представлений для приложения API."""
+
 import logging
 
 from django.conf import settings
-from rest_framework import authentication, permissions, status
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -12,14 +13,9 @@ from gpt.tasks import communicate_gpt
 from gpt.utils import send_message_gpt
 from tg.tg_bot import VinkTgBotGetter, check_is_in_operator_mode
 
-# from gpt.tg_utils import send_message_to_operator_via_tg_bot, send_notification_to_operators
-
 
 class SendMessageGPT(APIView):
-    """."""
-
-    # authentication_classes = [authentication.TokenAuthentication]
-    # permission_classes = [permissions.IsAdminUser]
+    """Предать сообщение."""
 
     def post(self, request):
         headers = request.headers
@@ -49,13 +45,13 @@ class SendMessageGPT(APIView):
 
 
 class ReceiveMessage(APIView):
-    """."""
+    """Получить сообщения."""
 
     def get(self, request):
         headers = request.headers
         chat_token = headers.get("chat-token")
         token = Token.objects.filter(chat_token=chat_token).first()
-        messages = token.messages.filter(status="0")
+        messages = Message.objects.filter(token=token, status="0")
         serializer = MessageSerializer(messages, many=True)
         for message in messages:
             message.status = "1"
