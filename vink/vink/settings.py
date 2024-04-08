@@ -49,13 +49,6 @@ CORS_ALLOW_HEADERS = (
     "chat-token",
 )
 
-# CORS_URLS_REGEX = r"^/api/.*$"
-
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:5173",
-#     "http://77.232.128.89",
-# ]
-
 ROOT_URLCONF = "vink.urls"
 
 TEMPLATES = [
@@ -76,15 +69,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "vink.wsgi.application"
 
-# sqlite
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
-
-# postgres
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -139,3 +123,7 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
 SWAGGER_SETTINGS = {"USE_SESSION_AUTH": False}
+
+# yandexGPT.
+CATALOG_IDENTIFIER = os.getenv("CATALOG_IDENTIFIER")
+API_KEY = os.getenv("API_KEY")

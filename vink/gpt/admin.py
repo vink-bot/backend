@@ -21,7 +21,7 @@ class MessageAdmin(admin.ModelAdmin):
         "status_verbose",
         "user",
         "operator_verbose",
-        "recipient"
+        "recipient",
     )
 
     @admin.display(description="Токен пользователя")
@@ -48,7 +48,8 @@ class MessageAdmin(admin.ModelAdmin):
     @admin.display(description="Оператор")
     def operator_verbose(self, object: Message):
         operator: Operator = Operator.objects.filter(
-            tg_user_id=object.telegram_number_chat).first()
+            tg_user_id=object.telegram_number_chat
+        ).first()
         if operator is not None:
             return operator.full_name
         return "-"

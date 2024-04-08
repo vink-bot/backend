@@ -4,7 +4,7 @@ from gpt.models import Message
 
 
 class MessageSerializer(serializers.ModelSerializer):
-    """."""
+    """Сериализатор для модели Message."""
 
     class Meta:
         model = Message
