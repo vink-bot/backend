@@ -77,7 +77,7 @@ http://127.0.0.1:5555
 - https://disk.yandex.ru/i/1Km42IVc3MpENg
 
 # Ссылка на бота ТГ (для операторов) - что бы через него общаться с пользователем.
-- @TigerKitty_bot
+- [@TigerKitty_bot](https://t.me/TigerKitty_bot))
 
 # Сайт проекта
 - http://hackathon.zapto.org/
