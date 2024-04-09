@@ -91,13 +91,13 @@ http://127.0.0.1:5555
 - https://disk.yandex.ru/i/oFe1ww9htkyEiA
 
 # Авторы (backend):
-➡️ Александр Мальшаков (ТГ [@amalshakov](https://t.me/amalshakov), GitHub [amalshakov](https://github.com/amalshakov/))
-➡️ Олег Чужмаров  (ТГ [@amalshakov](https://t.me/chtiger4), GitHub [floks41](https://github.com/floks41/))
+- ➡️ Александр Мальшаков (ТГ [@amalshakov](https://t.me/amalshakov), GitHub [amalshakov](https://github.com/amalshakov/))
+- ➡️ Олег Чужмаров  (ТГ [@amalshakov](https://t.me/chtiger4), GitHub [floks41](https://github.com/floks41/))
 
 # Авторы
-➡️ Frontend - Типсин Дмитрий (ТГ [@Chia_Rio_Ru](https://t.me/Chia_Rio_Ru), GitHub [TIPDMR](https://github.com/TIPDMR/))
-➡️ Product manager – Сергей Кириллов (ТГ [@Exclussivei](https://t.me/Exclussivei))
-➡️ Project manager – Лена Вертинская (ТГ [@lena_vert](https://t.me/lena_vert))
+- ➡️ Frontend - Типсин Дмитрий (ТГ [@Chia_Rio_Ru](https://t.me/Chia_Rio_Ru), GitHub [TIPDMR](https://github.com/TIPDMR/))
+- ➡️ Product manager – Сергей Кириллов (ТГ [@Exclussivei](https://t.me/Exclussivei))
+- ➡️ Project manager – Лена Вертинская (ТГ [@lena_vert](https://t.me/lena_vert))
 
 # Ссылка на репозиторий frontend'a (переключите на ветку develop):
 - https://github.com/vink-bot/frontend
