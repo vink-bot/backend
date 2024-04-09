@@ -19,6 +19,7 @@ def communicate_gpt(chat_token, message, message_id):
                 token=Token.objects.filter(chat_token=chat_token).first(),
                 status=0,
                 user="GPT",
+                recipient='USER',
             )
         else:
             client_last_message = Message.objects.get(pk=message_id)

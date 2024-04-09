@@ -165,7 +165,7 @@ class VinkTgBotGetter:
                 user_first_name=getattr(update.effective_user, "first_name"),
                 user_last_name=getattr(update.effective_user, "last_name"),
                 user_username=getattr(update.effective_user, "username"),
-                message_text=update.effective_message.text,
+                message_text=getattr(update.effective_message, "text", ""),
                 callback_data=callback_data,
                 callback_query_id=callback_query_id,
                 client_token=self.__get_client_token_by_operator(
