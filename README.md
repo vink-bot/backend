@@ -92,7 +92,7 @@ http://127.0.0.1:5555
 
 # Авторы (backend):
 - ➡️ Александр Мальшаков (ТГ [@amalshakov](https://t.me/amalshakov), GitHub [amalshakov](https://github.com/amalshakov/))
-- ➡️ Олег Чужмаров  (ТГ [@amalshakov](https://t.me/chtiger4), GitHub [floks41](https://github.com/floks41/))
+- ➡️ Олег Чужмаров  (ТГ [@chtiger4](https://t.me/chtiger4), GitHub [floks41](https://github.com/floks41/))
 
 # Авторы
 - ➡️ Frontend - Типсин Дмитрий (ТГ [@Chia_Rio_Ru](https://t.me/Chia_Rio_Ru), GitHub [TIPDMR](https://github.com/TIPDMR/))
