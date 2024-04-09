@@ -71,15 +71,15 @@ http://127.0.0.1:5555
     ]
 }
 ```
-- Так продолжается до тех пор, пока gpt явно не ответит, как бот, в таком случае, сообщение от gpt пользователю не доставляется, а подключается оператор(человек) через тг бота, который получает всю переписку пользователя с gpt.
+- Так продолжается до тех пор, пока gpt явно не ответит, как бот, в таком случае, сообщение от gpt пользователю не доставляется, а подключается оператор(человек) через тг бота, который получает всю переписку пользователя с gpt. И далее продолжает общение с пользователем.
 
 # Инструкция по работе оператора через телеграмм-бот.
 - https://disk.yandex.ru/i/1Km42IVc3MpENg
 - Внимательно прочитайте инструкцию. Обращаем внимание, что при первом посещении бота - нужно нажать «Start». Далее в админке администратору необходимо подтвердить (активировать) оператора - http://hackathon.zapto.org/admin/tg/operator/
 - После этого (что бы принимать сообщения от пользователей) - необходимо вновь нажать «Start».
 
-# Ссылка на бота ТГ (для операторов) - что бы через него общаться с пользователем.
-- [@TigerKitty_bot](https://t.me/TigerKitty_bot)
+# Ссылка на бота ТГ (для операторов) - что бы через него общаться с пользователем/ями.
+- https://t.me/TigerKitty_bot
 
 # Сайт проекта
 - http://hackathon.zapto.org/
@@ -90,9 +90,14 @@ http://127.0.0.1:5555
 # Демо работы проекта.
 - https://disk.yandex.ru/i/oFe1ww9htkyEiA
 
-# Авторы:
-- Александр Мальшаков (ТГ @amalshakov, GitHub [amalshakov](https://github.com/amalshakov/))
-- Олег Чужмаров  (ТГ @chtiger4, GitHub [floks41](https://github.com/floks41/))
+# Авторы (backend):
+➡️ Александр Мальшаков (ТГ [@amalshakov](https://t.me/amalshakov), GitHub [amalshakov](https://github.com/amalshakov/))
+➡️ Олег Чужмаров  (ТГ [@amalshakov](https://t.me/chtiger4), GitHub [floks41](https://github.com/floks41/))
+
+# Авторы
+➡️ Frontend - Типсин Дмитрий (ТГ [@Chia_Rio_Ru](https://t.me/Chia_Rio_Ru), GitHub [TIPDMR](https://github.com/TIPDMR/))
+➡️ Product manager – Сергей Кириллов (ТГ [@Exclussivei](https://t.me/Exclussivei))
+➡️ Project manager – Лена Вертинская (ТГ [@lena_vert](https://t.me/lena_vert))
 
 # Ссылка на репозиторий frontend'a (переключите на ветку develop):
 - https://github.com/vink-bot/frontend
