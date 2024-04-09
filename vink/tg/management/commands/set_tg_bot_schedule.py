@@ -22,7 +22,7 @@ class Command(BaseCommand):
             every=TG_BOT_START_INTERVAL_SECONDS,
             period=IntervalSchedule.SECONDS,
         )
-        PeriodicTask.objects.create(
+        task, created = PeriodicTask.objects.get_or_create(
             interval=schedule,
             name="Telegram bot get and process updates.",
             task="tasks.get_and_process_tg_updates",
