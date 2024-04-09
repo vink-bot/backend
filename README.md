@@ -74,3 +74,6 @@ http://127.0.0.1:5555
 # Авторы:
 - Александр Мальшаков (ТГ @amalshakov, GitHub [amalshakov](https://github.com/amalshakov/))
 - Олег Чужмаров  (ТГ @chtiger4, GitHub [floks41](https://github.com/floks41/))
+
+# Ссылка на репозиторий frontend'a:
+- https://github.com/vink-bot/frontend
