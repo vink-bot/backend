@@ -46,12 +46,26 @@ class ReceiveMessage(APIView):
     def get(self, request):
         headers = request.headers
         chat_token = headers.get("chat-token")
-        token = Token.objects.filter(chat_token=chat_token).first()
-        messages = Message.objects.filter(token=token, status="0")
-        serializer = MessageSerializer(messages, many=True)
-        for message in messages:
-            message.status = "1"
-            message.save()
-        return Response(
-            {"messages": serializer.data}, status=status.HTTP_200_OK
-        )
+
+        try:
+            token = Token.objects.filter(chat_token=chat_token).first()
+            messages = Message.objects.filter(token=token, status="0")
+            serializer = MessageSerializer(messages, many=True)
+
+            for message in messages:
+                message.status = "1"
+                message.save()
+
+            return Response(
+                {"messages": serializer.data}, status=status.HTTP_200_OK
+            )
+
+        except Token.DoesNotExist:
+            return Response(
+                {"error": "Токен не найден."}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
