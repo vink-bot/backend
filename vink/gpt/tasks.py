@@ -1,6 +1,7 @@
 """Модуль задач приложения GPT."""
 
 from celery import shared_task
+from django.conf import settings
 from django.db import transaction
 
 from .utils import send_message_gpt
@@ -19,7 +20,7 @@ def communicate_gpt(chat_token, message, message_id):
                 token=Token.objects.filter(chat_token=chat_token).first(),
                 status=0,
                 user="GPT",
-                recipient='USER',
+                recipient="USER",
             )
         else:
             client_last_message = Message.objects.get(pk=message_id)
@@ -29,17 +30,10 @@ def communicate_gpt(chat_token, message, message_id):
 
 
 def is_gpt_message_correct(message: str) -> bool:
-    """Проверка сообщения от GPT на необходимость переключения на оператора.
-    Если сообщение от GPT корректно - возвращает True.
-    Если сообщение от GPT не корректно - возвращает False.
-    True - продолжает общение с GPT.
-    False - переключает общение на оператора.
+    """
+    Проверяет корректность сообщения от GPT для продолжения общения с ним.
+    True - продолжаем общение с GPT.
+    False - переводим ответ на оператора.
     """
 
-    fail_1 = "искусственного интеллекта"
-    fail_2 = "искусственный интеллект"
-    fail_3 = "я не могу"
-
-    if fail_1 in message or fail_2 in message or fail_3 in message:
-        return False
-    return True
+    return not any(fail in message for fail in settings.GPT_RESPONSE_INCORRECT)
