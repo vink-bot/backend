@@ -127,3 +127,11 @@ SWAGGER_SETTINGS = {"USE_SESSION_AUTH": False}
 # yandexGPT.
 CATALOG_IDENTIFIER = os.getenv("CATALOG_IDENTIFIER")
 API_KEY = os.getenv("API_KEY")
+
+# is_gpt_message_correct.
+GPT_RESPONSE_INCORRECT = [
+    "искусственного интеллекта",
+    "искусственный интеллект",
+    "я не могу",
+    "я бот",
+]
